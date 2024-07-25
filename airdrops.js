@@ -1,25 +1,28 @@
-import { Connection, LAMPORTS_PER_SOL, PublicKey } from '@solana/web3.js'
+import { Connection, Keypair, LAMPORTS_PER_SOL, PublicKey } from '@solana/web3.js'
 
 import { generateKey } from './keygen.js';
 
+import walletKey from './wallet.json' assert {type: 'json'}
 
-(async () => {
 
-  const connection = new Connection('https://api.devnet.solana.com', 'confirmed')
+export const AirdropCoins = async () => {
 
-  const myAddress = generateKey().publicKey;
+  const connection = new Connection('https://api.devnet.solana.com', 'confirmed');
 
-  console.log(myAddress)
+  const myAddress = Keypair.fromSecretKey(new Uint8Array(walletKey)).publicKey.toBase58();
+
+  console.log({myAddress})
 
   const myAddressPublicKey = new PublicKey(myAddress);
 
-  const signature = await connection.requestAirdrop(myAddressPublicKey, LAMPORTS_PER_SOL * 0.1)
+  const signature = await connection.requestAirdrop(myAddressPublicKey, LAMPORTS_PER_SOL * 0.4)
 
   console.log(signature);
 
   const res = await connection.confirmTransaction(signature);
 
-  console.log(res)
+  // console.log({res})
+  return !res.value.err
+}
 
-
-})()
+AirdropCoins()
